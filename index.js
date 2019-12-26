@@ -151,7 +151,7 @@ client.on('message', msg => {
 });
 
 //logs in
-client.login(token);
+client.login(token).catch(err => console.log(err, '\n\n', '--> You probably didn\'t set your token correctly'));
 
 
 process.on('SIGINT', () => {
