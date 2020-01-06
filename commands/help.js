@@ -19,7 +19,13 @@ module.exports = {
             data = (commands.map(command => {
                     if(!lastCmd || command.name !== lastCmd.name){
                         lastCmd = command;
-                        return `${prefix}${command.name}:\nDescrição: ${command.description}`;
+                        let ret = `${prefix}${command.name}:\n`;
+                        if(command.alias){
+                            ret += "Alias: ";
+                            ret += `${command.alias.join(", ")}.\n`;
+                        }
+                        ret += `Descrição: ${command.description}`;
+                        return ret;
                     }
                 })).filter((elem) => elem).join(",\n");
             reply += data
@@ -35,11 +41,16 @@ module.exports = {
         }
 
         if(!commands.has(args[0])){
-            return msg.reply("O comando buscado não existe :(")
+            return msg.reply("O comando buscado não existe :(");
         }
 
-        const comm = commands.get(args[0])
-        let reply = `Nome: ${comm.name}\nDescrição: ${comm.description}\n`
+        const comm = commands.get(args[0]);
+        let reply = `Nome: ${comm.name}\n`;
+        if(comm.alias) {
+            reply += `Alias: `;
+            reply += `${comm.alias.join(", ")}.\n`;
+        }
+        reply += `Descrição: ${comm.description}\n`
         if(comm.args){
             if(comm.args === "unique")
                 reply += `Numero de argumentos necessarios: ${comm.argsNum}\n`

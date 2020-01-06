@@ -3,7 +3,7 @@ const { createEmbed } = require("./startPoll.js")
 module.exports = {
     name        :   "showPoll",
     alias       :    ['show', 'sp'],
-    description :   "Show current results for the desired poll",
+    description :   "Mostra os resultados da votação indicada.",
     args        :   "unique",
     argsNum     :   1,
     hasCooldown :   true,

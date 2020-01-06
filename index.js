@@ -2,6 +2,11 @@ const fs = require("fs");
 const Discord = require('discord.js');
 let { prefix, token } = require("./config.json");
 const nums = {'\u0031\u20E3': 1, '\u0032\u20E3': 2, '\u0033\u20E3': 3, '\u0034\u20E3': 4, '\u0035\u20E3': 5, '\u0036\u20E3': 6, '\u0037\u20E3': 7, '\u0038\u20E3': 8, '\u0039\u20E3': 9, '\u0040\u20E3': 10};
+const readline = require("readline");
+const rl = readline.createInterface({
+  input:  process.stdin,
+  output: process.stdout
+});
 
 //Create VARIABLES
 const client = new Discord.Client();
@@ -102,9 +107,9 @@ client.on("message", msg => {
     }
   } else {
     // reply a message saying the entered command dossen't exists and deletes it after 5 seconds
-    msg.reply("Esse comando não existe").then(msg => msg.delete(5000)).catch(err => console.log("Mensagem não apagada."));
+    msg.reply("Esse comando não existe").then(msg => msg.delete(5000)).catch(err => console.log("Message not erased."));
   }
-  msg.delete(5000).catch(err => console.log("Mensagem não apagada."));
+  msg.delete(5000).catch(err => console.log("Message not erased."));
 });
 
 // vote with reactions stuff
@@ -129,7 +134,7 @@ client.on('messageReactionAdd', (reaction, user) => {
           }
         if(choice === null) return msg.channel.send(`Não existe essa opção`, {reply:  user});
         poll.userVoted[user.id] = choice;
-        msg.channel.send(`Voto computado com sucesso! :D`, {reply:  user}).then(msg => setTimeout(() => msg.delete(), 5000)).catch(err => console.log("Mensagem não apagada."));
+        msg.channel.send(`Voto computado com sucesso! :D`, {reply:  user}).then(msg => setTimeout(() => msg.delete(), 5000)).catch(err => console.log("Message not erased."));
         let show = client.commands.get('show');
         return show.execute(client, msg, [poll.name], polls);
       }
@@ -152,13 +157,19 @@ client.on('message', msg => {
 async function login(){
   client.login(token).catch(err => {
     console.log("Error loging in, you probably entered a invalid token.");
-    const readline = require("readline");
-    const rl = readline.createInterface({
-      input:  process.stdin,
-      output: process.stdout
-    });
-    rl.question("Try using another one (will only be used during the current session):\n", ans => {token = ans; login()});
+    rl.question("Try using another one (will only be used during the current session):\n", 
+      ans => {
+        if(ans.toLowerCase() === 'exit') process.exit();
+        else {
+          token = ans;
+          login();
+        }
+      });
   });
 }
+
+rl.on('line', input => {
+  if(input.toLowerCase() === 'exit') process.exit();
+});
 
 login();

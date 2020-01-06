@@ -3,7 +3,7 @@ const { prefix } = require('../config.json');
 module.exports = {
     name        :   "startPoll",
     alias       :    ['start', 'stp'],
-    description :   "Creates a new poll (if it doesn't exists), 2-10 options.",
+    description :   "Cria uma nova votação (se não existir nenhuma com o mesmo nome), 2-10 opções.",
     args        :   "special",
     argsInfo    :   "Esse comando aceita diferentes numeros de argumentos, use o comando help para mais informações sobre como usá-lo",
     hasCooldown :   true,
