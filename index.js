@@ -1,35 +1,35 @@
-const fs = require("fs")
+const fs = require("fs");
 const Discord = require('discord.js');
-const { prefix, token } = require("./config.json")
+let { prefix, token } = require("./config.json");
 const nums = {'\u0031\u20E3': 1, '\u0032\u20E3': 2, '\u0033\u20E3': 3, '\u0034\u20E3': 4, '\u0035\u20E3': 5, '\u0036\u20E3': 6, '\u0037\u20E3': 7, '\u0038\u20E3': 8, '\u0039\u20E3': 9, '\u0040\u20E3': 10};
 
 //Create VARIABLES
-const client = new Discord.Client()
-client.commands = new Discord.Collection()
+const client = new Discord.Client();
+client.commands = new Discord.Collection();
 const cooldowns = new Discord.Collection();
 const polls = new Discord.Collection();
 
 
 //CREATE COMMAND COLLECTION
-const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"))
+const commandFiles = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
 
 for (const file of commandFiles){
-  const command = require(`./commands/${file}`)
+  const command = require(`./commands/${file}`);
   client.commands.set(command.name, command);
   if(command.alias) for(const alias of command.alias) client.commands.set(alias, command);
   //Create cooldown collection as well
-  if(command.hasCooldown) cooldowns.set(command.name, new Discord.Collection())
+  if(command.hasCooldown) cooldowns.set(command.name, new Discord.Collection());
 }
 
 // Just some debug stuff, but still some good infos
 client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}! prefix: ${prefix}`)
-})
+  console.log(`Logged in as ${client.user.tag}! prefix: ${prefix}`);
+});
 
 client.on("message", msg => {
 
   //if the message doesn't starts with the prefix or was sent by the bot it's ignored
-  if (!msg.content.startsWith(prefix) || msg.author.bot) return
+  if (!msg.content.startsWith(prefix) || msg.author.bot) return;
 
   // gets every word entered and ignore aditioal space between words.
   const msgEveryWord = msg.content.slice(prefix.length).split(/ +/); 
@@ -39,7 +39,7 @@ client.on("message", msg => {
 
   // checks if the command exists
   if (client.commands.has(commName)){
-    const comm = client.commands.get(commName) // gets the command itself
+    const comm = client.commands.get(commName); // gets the command itself
     
     // joins every word together (with only one space between then) and then splits for every comma
     const args = msgEveryWord.length ? msgEveryWord.join(' ').split(',') : [];
@@ -78,12 +78,11 @@ client.on("message", msg => {
         
         //Cooldown Treatment
         if(cooldowns.get(comm.name).has(msg.author.id)){
-
-          const expirationTime = cooldowns.get(comm.name).get(msg.author.id) + (comm.cooldown * 1000)
-          const now = Date.now()
+          const expirationTime = cooldowns.get(comm.name).get(msg.author.id) + (comm.cooldown * 1000);
+          const now = Date.now();
           if(now < expirationTime){
-            const timeLeft = (expirationTime - now) / 1000
-            return msg.channel.send(`Ei ei, ${msg.author.username}, vamos com calma aqui amigão, o comando precisa de mais ${Math.round(timeLeft * 100) / 100} segundos pra recuperar o folego!`)
+            const timeLeft = (expirationTime - now) / 1000;
+            return msg.channel.send(`Ei ei, ${msg.author.username}, vamos com calma aqui amigão, o comando precisa de mais ${Math.round(timeLeft * 100) / 100} segundos pra recuperar o folego!`);
           }
         }
 
@@ -133,10 +132,8 @@ client.on('messageReactionAdd', (reaction, user) => {
         msg.channel.send(`Voto computado com sucesso! :D`, {reply:  user}).then(msg => setTimeout(() => msg.delete(), 5000)).catch(err => console.log("Mensagem não apagada."));
         let show = client.commands.get('show');
         return show.execute(client, msg, [poll.name], polls);
-
       }
     }
-
   } catch (error) {
     console.log(error);
     msg.reply('some error ocurred:/');
@@ -151,10 +148,17 @@ client.on('message', msg => {
 });
 
 //logs in
-client.login(token).catch(err => console.log(err, '\n\n', '--> You probably didn\'t set your token correctly'));
 
+async function login(){
+  client.login(token).catch(err => {
+    console.log("Error loging in, you probably entered a invalid token.");
+    const readline = require("readline");
+    const rl = readline.createInterface({
+      input:  process.stdin,
+      output: process.stdout
+    });
+    rl.question("Try using another one (will only be used during the current session):\n", ans => {token = ans; login()});
+  });
+}
 
-process.on('SIGINT', () => {
-  console.log('finished with ctrl-c');
-  process.exit();
-});
+login();

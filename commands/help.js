@@ -13,8 +13,15 @@ module.exports = {
         let data = "";
         const { commands } = client
         if(!args.length){
-            let reply = "Aqui está uma lista dos meus comandos:\n"
-            data = (commands.map(command => `${prefix}${command.name}\nDescrição: ${command.description}`).join(",\n"))
+            let reply = "Aqui está uma lista dos meus comandos:\n";
+            let lastCmd = null;
+            const tempCmds = commands.filter
+            data = (commands.map(command => {
+                    if(!lastCmd || command.name !== lastCmd.name){
+                        lastCmd = command;
+                        return `${prefix}${command.name}:\nDescrição: ${command.description}`;
+                    }
+                })).filter((elem) => elem).join(",\n");
             reply += data
             return msg.author.send(reply, { split: true})
                     .then(() => {
